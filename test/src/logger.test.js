@@ -1,13 +1,12 @@
-'use strict';
+import {Console}        from 'node:console';
+import {join, relative} from 'node:path';
+import * as stream      from 'node:stream';
+import {jest}           from '@jest/globals';
 
-const {Console}        = require('console');
-const {join, relative} = require('path');
-const stream           = require('stream');
+import * as logger from '../../src/index.js';
 
-const logger = require('../../src');
-
-const moduleA = require('module-a');
-const moduleB = require('module-b');
+import moduleA from 'module-a';
+import moduleB from 'module-b';
 
 const LOG = [];
 const fakeStream = new stream.Writable({
@@ -469,7 +468,7 @@ describe('Logger', () => {
 			}
 		});
 		
-		const rootPath = join(__dirname, '..');
+		const rootPath = join(import.meta.dirname, '..');
 		
 		print();
 		
@@ -487,7 +486,7 @@ describe('Logger', () => {
 		logger.attach({
 			transform({args, rootPath, stackTrace}) {
 				// Filter out Jest
-				const ignoredPath = join(__dirname, '..', '..', 'node_modules');
+				const ignoredPath = join(import.meta.dirname, '..', '..', 'node_modules');
 				for (let i = 0; i < stackTrace.length; i++) {
 					if (stackTrace[i].getFileName().includes(ignoredPath)) {
 						stackTrace.length = i;
@@ -534,14 +533,14 @@ describe('Logger', () => {
 			].join('\n'),
 			[
 				'module a ',
-				'at node_modules/module-a/index.js::Object.<anonymous>.module.exports',
+				'at node_modules/module-a/index.js::default',
 				'   src/logger.test.js::useModules',
 				'   src/logger.test.js::print',
 				'   src/logger.test.js::<anonymous>'
 			].join('\n'),
 			[
 				'module b ',
-				'at node_modules/module-b/index.js::Object.<anonymous>.module.exports',
+				'at node_modules/module-b/index.js::default',
 				'   src/logger.test.js::useModules',
 				'   src/logger.test.js::print',
 				'   src/logger.test.js::<anonymous>'

@@ -1,6 +1,6 @@
 {
 	"name":    "@vadym.gidulian/logger",
-	"version": "1.0.0",
+	"version": "2.0.0-alpha.1",
 	
 	"description": "A transparent logger that just logs",
 	"keywords": [
@@ -11,27 +11,28 @@
 		"logs"
 	],
 	
-	"main":  "src/index.js",
-	"types": "src/index.d.ts",
+	"type": "module",
+	"exports": {
+		".": {
+			"types":  "./src/index.d.ts",
+			"import": "./src/index.js"
+		}
+	},
 	
 	"scripts": {
-		"test": "jest"
+		"test": "NODE_OPTIONS='--experimental-vm-modules' jest"
 	},
 	
 	"engines": {
-		"node": ">=10"
+		"node": "^20.11.0 || >=22"
 	},
 	
 	"dependencies": {
-		"@types/minimatch": "3.0",
-		"@types/node":      ">=10",
+		"@types/node": ">=20.11",
 		
-		"minimatch": "3.0"
+		"minimatch": "10.1.1"
 	},
 	"devDependencies": {
-		"del":       "5.1",
-		"jest":      "26.6",
-		"mkdirp":    "1.0",
-		"ncp":       "2.0"
+		"jest": "~30.2.0"
 	}
 }

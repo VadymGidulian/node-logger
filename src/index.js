@@ -1,43 +1,32 @@
-'use strict';
+import {Console}        from 'node:console';
+import * as path        from 'node:path';
+import {minimatch}      from 'minimatch';
+import {getProjectRoot} from './util.js';
 
-const {Console}        = require('console');
-const path             = require('path');
-const minimatch        = require('minimatch');
-const {getProjectRoot} = require('./util');
-
-const SYMBOL_NAMESPACE = '@vadym.gidulian/logger@v1';
+const SYMBOL_NAMESPACE = '@vadym.gidulian/logger@v2';
 const LOGGER = Symbol.for(SYMBOL_NAMESPACE);
 const CALLER = Symbol.for(`${SYMBOL_NAMESPACE}::Caller`);
 
 let originalConsole           = null;
 let originalConsoleDescriptor = null;
 
-const PROJECT_ROOT = getProjectRoot();
-
-module.exports = {
+export function attach(config = []) {
+	const moduleRoot = getProjectRoot(getCallerFilename(getStackTrace(attach)));
 	
-	attach(config = []) {
-		const moduleRoot = getProjectRoot(getCallerFilename(getStackTrace(this.attach)));
-		
-		if (!Array.isArray(config)) config = [config];
-		for (const conf of config) {
-			conf[CALLER] = {
-				type:     (moduleRoot === PROJECT_ROOT) ? 'project' : 'module',
-				rootPath: moduleRoot
-			};
-		}
-		
-		replaceConsole();
-		appendConfig(config);
-	},
-	
-	detach() {
-		if (!isLoggerAttached()) return;
-		
-		global.console[LOGGER].restore();
+	if (!Array.isArray(config)) config = [config];
+	for (const conf of config) {
+		conf[CALLER] = {rootPath: moduleRoot};
 	}
 	
-};
+	replaceConsole();
+	appendConfig(config);
+}
+
+export function detach() {
+	if (!isLoggerAttached()) return;
+
+	global.console[LOGGER].restore();
+}
 
 
 
@@ -47,7 +36,6 @@ function appendConfig(config) {
 	if (!Array.isArray(config)) config = [config];
 	
 	global.console[LOGGER].config.push(...config);
-	global.console[LOGGER].config.sort((c1, c2) => c1[CALLER].type.localeCompare(c2[CALLER].type));
 }
 
 function isLoggerAttached() {
@@ -73,7 +61,7 @@ function getStackTrace(topFrame) {
 			for (const callSite of structuredStackTrace) {
 				const fileName = callSite.getFileName();
 				if (fileName) {
-					if (fileName.startsWith(__dirname)) continue;
+					if (fileName.startsWith(import.meta.dirname)) continue;
 					if (fileName.startsWith('internal')) break;
 				}
 				
@@ -120,8 +108,6 @@ function replaceConsole() {
 							const relativePath = callerFilename
 								? path.relative(conf[CALLER].rootPath, callerFilename)
 								: '';
-							
-							if ((conf[CALLER].type === 'module') && relativePath.startsWith('..')) continue;
 							
 							if (conf.method) {
 								const methods = Array.isArray(conf.method) ? conf.method : [conf.method];

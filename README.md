@@ -7,8 +7,6 @@ A transparent logger that just logs.
 This logger is designed to be simple, easy in use, highly configurable, and methodology agnostic.
 It uses standard console API, so you don't need to make any changes in your existing code.
 
-The logger is universal and may be used either in a project and its dependencies.
-
 ## ✨ Features
 
 - Uses standard console API
@@ -16,13 +14,16 @@ The logger is universal and may be used either in a project and its dependencies
 - Highly configurable at any point
 - Provides plenty information for custom formatting
 - Works with custom methods
-- May be safely used in dependencies
 - Methodology agnostic
+
+## 📋 Requirements
+
+- Node.js 20.11+ or 22+
 
 ## 📝 Usage
 
 ```js
-const logger = require('@vadym.gidulian/logger');
+import * as logger from '@vadym.gidulian/logger';
 
 // Attach the logger. If the logger is already attached, appends the passed config to the existing one, if any.
 logger.attach();
@@ -118,11 +119,9 @@ logger.detach();
 
 The stack trace is an array of stack frames represented by [`CallSite` objects](https://v8.dev/docs/stack-trace-api#customizing-stack-traces).
 
-### Usage in dependencies
+### Transforming dependency logs
 
-Dependencies may (or may not) safely use the logger.
-
-If they don't, you can customize their logs like this:
+You can customize logs from dependencies by matching their paths:
 
 ```js
 logger.attach({
@@ -131,27 +130,11 @@ logger.attach({
 });
 ```
 
-If they do, you can use your own config on top of theirs or even effectively cancel their config like this:
-
-```js
-logger.attach({
-    path:     /^node_modules\/module/,
-    disabled: false, // In case they disabled logging for some methods and/or paths
-    transform({originalArgs}) {
-        return originalArgs;
-    }
-});
-```
-
-***Note:** Configs defined in dependencies are always processed first regardless of the order of defining.*
-
-***Note:** Paths specified in dependencies' configs are root relative to them.*
-
 ### Caveats
 
 #### Reusable config
 
-If you would like to extract logger setup into a separate module, this will not work as intended (see [Usage in dependencies](#usage-in-dependencies)).
+If you would like to extract logger setup into a separate module, this will not work as intended.
 
 Instead, only extract the config. Also, to make it parameterizable, your module can return a function returning the config.
 

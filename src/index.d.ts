@@ -1,5 +1,5 @@
-import {Console}                      from 'console';
-import {IOptions as MinimatchOptions} from 'minimatch';
+import {Console}          from 'node:console';
+import {MinimatchOptions} from 'minimatch';
 
 declare namespace Logger {
 	

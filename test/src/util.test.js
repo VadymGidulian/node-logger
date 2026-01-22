@@ -1,15 +1,10 @@
-'use strict';
+import * as path from 'node:path';
 
-const path = require('path');
-
-const {getProjectRoot} = require('../../src/util');
+import {getProjectRoot} from '../../src/util.js';
 
 const testDir = path.join(process.cwd(), 'test');
 
 describe('Util', () => {
-	test(`getProjectRoot()`, () => {
-		expect(getProjectRoot()).toBe(testDir);
-	});
 	test(`getProjectRoot('src/index.js')`, () => {
 		expect(getProjectRoot(path.resolve('test/src/index.js'))).toBe(testDir);
 	});
